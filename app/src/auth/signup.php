@@ -20,9 +20,8 @@
                     <div class="content_signup_wrapper">
                         <h1 class="content_title">Вы попали на страницу регистрации</h1>
                         <div class="form_wrapper">
-                            <form id="signup_form" action="" method="post">
+                            <form id="signup_form" action="../handlers/signup.handlers.php" method="post">
                                 <h3 class="form_title">Регистрация</h3>
-
                                 <div class="form_group">
                                     <label for="ulogin">Логин</label>
                                     <input id="ulogin" type="text" name="ulogin" class="field" placeholder="Логин">
@@ -47,7 +46,6 @@
                             <div class="clear_btn_wrapper">
                                 <button id="clear_btn">Очистить поля формы</button>
                             </div>
-
                         </div>
                     </div>
                 </div>

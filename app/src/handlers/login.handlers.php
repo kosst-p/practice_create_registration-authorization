@@ -1,5 +1,6 @@
 ﻿<?php
 if (count($_POST) > 0) {
+
     $username = $_POST['ulogin']; // логин
     $password = $_POST['upwd']; // пароль 
 

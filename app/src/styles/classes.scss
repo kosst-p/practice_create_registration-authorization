@@ -26,3 +26,11 @@
         color: black;
     }
 }
+
+.noerrorvalidate {
+    border: 2px solid green !important;
+    color: green;
+    &:focus {
+        color: black;
+    }
+}

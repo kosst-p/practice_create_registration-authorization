@@ -1,0 +1,35 @@
+{
+    "extends": ["airbnb-base", "prettier"],
+    //"parser": "babel-eslint", // This line is required to fix "unexpected token" errors
+    "plugins": ["prettier"],
+    "env": {
+        "browser": true,
+        "jquery": true
+        /*"node": true,
+        "jasmine": true */
+    },
+    "rules": {
+        "no-unused-vars": "warn",
+        "no-console": "off",
+        "func-names": "off",
+        "no-restricted-syntax": "off",
+        /*             "indent": [
+                2,
+                4
+            ], */
+        "no-plusplus": [
+            2,
+            {
+                "allowForLoopAfterthoughts": true
+            }
+        ], //i++ разрешен только для циклов
+        "indent": [
+            "error",
+            4,
+            {
+                "SwitchCase": 1
+            }
+        ]
+        //"quotes": ["error", "double"]
+    }
+}

@@ -1,62 +1,86 @@
 <?php
-if (isset($_POST['signup-submit'])) {
-    //подключим файл с подключением в бд
-    require "../handlers/dbcon.handlers.php";
+if (count($_POST) > 0) {
+    require "../handlers/dbcon.handlers.php"; // конфиг с подключением к БД
 
-    //запишем в переменные данные с полей формы
-    $username = $_POST['uid'];
-    $email = $_POST['mail'];
-    $password = $_POST['pwd'];
-    $passwordRepeat = $_POST['pwd-repeat'];
+    $status = true; // статус ответа
 
-    if (empty($username) || empty($email) || empty($password) || empty($passwordRepeat)) { //сделаем проверку на заполненость полей
-        header("Location: ../pages/signup.php?error=emptyfields&uid=" . $username . "&mail=" . $email);
-        exit();
-    } else if (!preg_match("/^[a-zA-Z0-9]*$/", $username) && !filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        header("Location: ../pages/signup.php?error=invaliduidmail");
-        exit();
-    } else if (!preg_match("/^[a-zA-Z0-9]*$/", $username)) { //сделаем проверку поля username на соответствие регулярному выражению
-        header("Location: ../pages/signup.php?error=invaliduid&mail=" . $email);
-        exit();
-    } else if (!filter_var($email, FILTER_VALIDATE_EMAIL)) { //сделаем проверку поля email(возвращает false, когда написано кириллицей)
-        header("Location: ../pages/signup.php?error=invalidmail&uid=" . $username);
-        exit();
-    } else  if ($password !== $passwordRepeat) { //сделаем проверку полей с паролями, чтобы они были одинаковы
-        header("Location: ../pages/signup.php?error=passwordcheck&uid=" . $username . "&mail=" . $email);
-        exit();
-    } else {
-        $sql = "SELECT uidUsers FROM users WHERE uidUsers=?"; //формируем sql запрос
-        $stmt = mysqli_stmt_init($connect); //инициализируем запрос к бд с учетом данных для подключения
-        if (!mysqli_stmt_prepare($stmt, $sql)) { //подготоваливаем запрос к выполнению
-            header("Location: ../pages/signup.php?error=sqlerror");
-            exit();
-        } else {
-            mysqli_stmt_bind_param($stmt, 's', $username); //привязка переменных к параметрам подготавливаемого запроса
-            mysqli_stmt_execute($stmt); //выполняем подготовленный запрос
-            mysqli_stmt_store_result($stmt); //передаем результирующий запрос на клиент
-            $resultCheck = mysqli_stmt_affected_rows($stmt);
-            if ($resultCheck > 0) {
-                header("Location: ../pages/signup.php?error=usertaken&mail=" . $email);
-                exit();
-            } else {
-                $sql = "INSERT INTO users (uidUsers, emailUsers, pwdUsers) VALUES(?, ?, ?)";
-                $stmt = mysqli_stmt_init($connect);
-                if (!mysqli_stmt_prepare($stmt, $sql)) {
-                    header("Location: ../pages/signup.php?error=sqlerror");
-                    exit();
-                } else {
-                    $hashedPwd = password_hash($password, PASSWORD_DEFAULT); //кодируем введенный пароль
-                    mysqli_stmt_bind_param($stmt, 'sss', $username, $email, $hashedPwd);
-                    mysqli_stmt_execute($stmt);
-                    header("Location: ../pages/signup.php?signup=success");
-                    exit();
-                }
-            }
+    // массив который будет собираться и отправляться на клиент
+    $response = [
+        'status' => $status,
+        'message' => [],
+        'inpnames' => [],
+    ];
+
+    // данные с полей формы
+    $username = trim($_POST['ulogin']);
+    $email = trim($_POST['uemail']);
+    $password = trim($_POST['upwd']);
+    $passwordRepeat = trim($_POST['upwd_rpt']);
+
+    // атрибут name с инпутов формы
+    $formfieldsnames = [
+        'ulogin',
+        'uemail',
+        'upwd',
+        'upwd_rpt'
+    ];
+
+
+    /* if (empty($username) || empty($email) || empty($password) || empty($passwordRepeat)) {
+        $response['status'] = false;
+        $response['message'][] = 'Поля не могут быть пустыми';
+    } */
+
+    // проверка на пустые поля
+    foreach ($formfieldsnames as $name) {
+        if (empty(trim($_POST[$name]))) {
+            $response['status'] = false;
+            $response['message'][] = 'Поля не могут быть пустыми';
+            $response['inpnames'][] = $name;
         }
     }
-    mysqli_stmt_close($stmt); //закрываем подготовленный запрос
-    mysqli_close($connect); //закрываем соединение
-} else {
-    header("Location: ../pages/signup.php");
-    exit();
+
+    // проверка корректности заполнения email
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $response['status'] = false;
+        $response['message'][] = 'Некорректный E-mail';
+        $response['inpnames'][] = 'uemail';
+    }
+
+    // проверка совпадения паролей
+    if ($password !== $passwordRepeat) {
+        $response['status'] = false;
+        $response['message'][] = 'Введенные пароли не совпадают';
+        $response['inpnames'][] = 'upwd';
+        $response['inpnames'][] = 'upwd_rpt';
+    }
+
+
+    // удаление повторяющийся значений в массиве
+    $response['message'] = array_unique($response['message']);
+
+    // регистрирование пользователя в базе и отправка ответа на клиент
+    if ($response['status'] == true) {
+        // регестрируем пользователя
+        // подготовленный sql запрос
+        $sql = "INSERT INTO users (u_login, u_email, u_password) VALUE(:u_login, :u_email, :u_password)";
+        // удаление тегов из полей инпута
+        $username = strip_tags($username);
+        $email = strip_tags($email);
+        $password = strip_tags($password);
+        // шифруем пароль
+        $password = password_hash($password, PASSWORD_DEFAULT);
+        // массив с параметрами
+        $params = [
+            'u_login' => $username,
+            'u_email' => $email,
+            'u_password' => $password,
+        ];
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute($params);
+        $response['message'][] = 'Вы зарегестрированы';
+        echo  json_encode($response, JSON_UNESCAPED_UNICODE);
+    } else {
+        echo json_encode($response, JSON_UNESCAPED_UNICODE);
+    }
 }
