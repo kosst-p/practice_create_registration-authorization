@@ -12,10 +12,10 @@ $response = [
 ];
 try {
     $pdo = new PDO("$driver:host=$host; dbname=$db_name; charset=$cahrset", $db_user, $db_pass, $options);
+    session_start(); // старт сесии
 } catch (PDOException $e) {
     //echo $e;
     //echo $e->getMessage() . '<br>';
-    //echo ('Соединение не установлено!');
     echo json_encode($response, JSON_UNESCAPED_UNICODE);
     die();
 }

@@ -40,7 +40,7 @@
                                 </div>
 
                                 <div class="form_group">
-                                    <button id="signup_btn" type="submit" name="signup_btn">Зарегестрироваться</button>
+                                    <button id="signup_btn" type="submit" name="signup_btn">Зарегистрироваться</button>
                                 </div>
                             </form>
                             <div class="clear_btn_wrapper">

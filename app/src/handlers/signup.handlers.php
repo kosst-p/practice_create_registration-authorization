@@ -25,12 +25,6 @@ if (count($_POST) > 0) {
         'upwd_rpt'
     ];
 
-
-    /* if (empty($username) || empty($email) || empty($password) || empty($passwordRepeat)) {
-        $response['status'] = false;
-        $response['message'][] = 'Поля не могут быть пустыми';
-    } */
-
     // проверка на пустые поля
     foreach ($formfieldsnames as $name) {
         if (empty(trim($_POST[$name]))) {
@@ -55,6 +49,16 @@ if (count($_POST) > 0) {
         $response['inpnames'][] = 'upwd_rpt';
     }
 
+    // проверка существования пользователя
+    // подготовленный sql запрос
+    $sql_check = 'SELECT EXISTS ( SELECT u_login FROM users WHERE u_login=:u_login )'; // EXIST - подзапрос
+    $stmt_check = $pdo->prepare($sql_check);
+    $stmt_check->execute([':u_login' => $username]);
+    if ($stmt_check->fetchColumn()) {
+        $response['status'] = false;
+        $response['message'][] = 'Такой пользователь уже существует';
+        $response['inpnames'][] = 'ulogin';
+    }
 
     // удаление повторяющийся значений в массиве
     $response['message'] = array_unique($response['message']);
@@ -78,7 +82,7 @@ if (count($_POST) > 0) {
         ];
         $stmt = $pdo->prepare($sql);
         $stmt->execute($params);
-        $response['message'][] = 'Вы зарегестрированы';
+        $response['message'][] = 'Вы зарегистрированы! Теперь можете авторизоваться!';
         echo  json_encode($response, JSON_UNESCAPED_UNICODE);
     } else {
         echo json_encode($response, JSON_UNESCAPED_UNICODE);

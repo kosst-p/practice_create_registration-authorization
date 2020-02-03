@@ -1,6 +1,6 @@
 <?php
 //запускаем сессию
-//session_start();
+session_start();
 
 $page = '';
 $title = 'Стартовая страница';
@@ -46,7 +46,12 @@ else if (isset($_SESSION['ulogin']) !== 1 && file_exists('guest/' . $page . '.ph
             <div class="row">
                 <div class="col-12">
                     <div class="content_index_wrapper">
-                        <h1 class="content_title">Вы попали на главную страницу</h1>
+
+                        <?php if (!isset($_SESSION['ulogin'])) { ?>
+                            <h1 class="content_title">Вы попали на главную страницу</h1>
+                        <?php } else { ?>
+                            <h1 class="content_title">Здравствуйте дорогой <?php echo $_SESSION['ulogin']; ?>!</h1>
+                        <?php } ?>
                     </div>
                 </div>
             </div>

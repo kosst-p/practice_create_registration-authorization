@@ -36,6 +36,12 @@
                                 <div class="form_group">
                                     <a href="#">Восстановить пароль</a>
                                 </div>
+                                <div class="form_group">
+                                    <a href="./signup.php">Зарегистрироваться</a>
+                                </div>
+                                <div class="form_group">
+                                    <a href="/">Главная страница</a>
+                                </div>
                             </form>
                         </div>
                     </div>

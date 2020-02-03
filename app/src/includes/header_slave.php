@@ -32,5 +32,5 @@
                 </div>
             </div>
         </nav>
-        </di>
+    </div>
 </header>

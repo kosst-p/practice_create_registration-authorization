@@ -3658,7 +3658,6 @@ html {
 
 .content_auth_wrapper .form_wrapper {
   width: 450px;
-  height: 350px;
   margin: 0 auto;
   padding: 10px;
   background-color: rgba(30, 185, 210, 0.44);
@@ -3670,6 +3669,24 @@ html {
     margin: 10px;
     padding: 5px;
     text-align: center; }
+    .content_auth_wrapper .form_wrapper .form_group .error_info_wrapper .error_message {
+      background-color: #ffe8e8;
+      border: 1px solid red;
+      color: red;
+      font-size: 12px;
+      font-weight: bold;
+      padding: 10px 25px; }
+      .content_auth_wrapper .form_wrapper .form_group .error_info_wrapper .error_message li {
+        list-style-type: disc; }
+    .content_auth_wrapper .form_wrapper .form_group .noerror_info_wrapper .noerror_message {
+      background-color: #ffe8e8;
+      border: 1px solid green;
+      color: green;
+      font-size: 12px;
+      font-weight: bold;
+      padding: 10px 25px; }
+      .content_auth_wrapper .form_wrapper .form_group .noerror_info_wrapper .noerror_message li {
+        list-style-type: disc; }
     .content_auth_wrapper .form_wrapper .form_group label {
       padding-left: 10px;
       text-transform: uppercase; }

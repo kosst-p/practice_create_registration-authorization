@@ -10600,10 +10600,10 @@ return jQuery;
 
 // Импортируем свои js-фаил
 $(document).ready(function() {
-    let current_page = window.location.pathname; //переменная с url страницы
+    let current_page = window.location.pathname; // переменная с url страницы
     // проверка текущей страницы
     if (current_page === '/auth/login.php') {
-        //обработка формы login_form
+        // обработка формы login_form
         let login_form = document.querySelector('#login_form'); // переменная с формой
         let login_btn = login_form.querySelector('#login_btn'); // переменная с инпутом-кнопкой в форме
         let user_name_inp = document.querySelector('#ulogin'); // переменная с инпутом-логин
@@ -10641,13 +10641,68 @@ $(document).ready(function() {
             }
         }
 
-        //обработка сабмита
+        // создание блока с информацией об ошибке(проверка на клиенте)
+        // eslint-disable-next-line no-inner-declarations
+        function create_error_block(x) {
+            let new_element_div_form_group = document.createElement('div'); // создаем новый элемент div
+            new_element_div_form_group.classList.add('form_group', 'error_reg'); // добавляем div'у class
+            let new_element_div_info = document.createElement('div'); // создаем новый элемент div
+            new_element_div_info.classList.add('error_info_wrapper'); // добавляем div'у class
+            new_element_div_form_group.append(new_element_div_info);
+            let new_element_ul = document.createElement('ul'); // создаем новый элемент ul
+            new_element_ul.classList.add('error_message'); // добавляем ul'у class
+            new_element_div_info.append(new_element_ul);
+            for (let elem in x) {
+                let new_element_li = document.createElement('li');
+                new_element_li.textContent = x[elem];
+                new_element_ul.append(new_element_li);
+            }
+            let form_title = document.querySelector('.form_title');
+            form_title.after(new_element_div_form_group);
+        }
+
+        // создание блока с успешной регистрацией(ответ от сервера)
+        // eslint-disable-next-line no-inner-declarations
+        function create_noerror_block(x) {
+            let new_element_div_form_group = document.createElement('div'); // создаем новый элемент div
+            new_element_div_form_group.classList.add(
+                'form_group',
+                'noerror_reg'
+            ); // добавляем div'у class
+            let new_element_div_info = document.createElement('div'); // создаем новый элемент div
+            new_element_div_info.classList.add('noerror_info_wrapper'); // добавляем div'у class
+            new_element_div_form_group.append(new_element_div_info);
+            let new_element_ul = document.createElement('ul'); // создаем новый элемент ul
+            new_element_ul.classList.add('noerror_message'); // добавляем ul'у class
+            new_element_div_info.append(new_element_ul);
+            for (let elem in x) {
+                let new_element_li = document.createElement('li');
+                new_element_li.textContent = x[elem];
+                new_element_ul.append(new_element_li);
+            }
+            let form_title = document.querySelector('.form_title');
+            form_title.after(new_element_div_form_group);
+        }
+
+        // удалим появляющийся div(чтобы они не плодились)
+        // eslint-disable-next-line no-inner-declarations
+        function delete_info_block(x) {
+            if (x) {
+                login_form.removeChild(x);
+            }
+        }
+
+        // обработка сабмита
         login_form.addEventListener('submit', function(e) {
             e.preventDefault(); // отменяем дальнейшее действие браузера
-
+            console.log('НАЖАЛИ SUBMIT');
             // инициализация функций
             validate_all_inputs();
             remove_class_and_set_placeholders();
+            let error_reg = document.querySelector('.error_reg');
+            let noerror_reg = document.querySelector('.noerror_reg');
+            delete_info_block(error_reg);
+            delete_info_block(noerror_reg);
 
             // аякс запрос
             if (validate_all_inputs() == true) {
@@ -10658,9 +10713,38 @@ $(document).ready(function() {
                     cache: false, // не будем кешировать производимый запрос.
                     dataType: 'json', // Тип данных, в котором ожидается получить ответ от сервера
                     // Функция, которая будет вызвана в случае удачного завершения запроса к серверу.
-                    success: function(data) {
-                        console.log('форма отправлена');
+                    success(data) {
                         console.log(data);
+                        if (data.status == false) {
+                            console.log('ФОРМА НЕОТПРАВЛЕНА');
+                            if (data.bd_info == false) {
+                                create_error_block(data.message);
+                            }
+                            console.log(data.inpnames);
+                            for (let i = 0; i < data.inpnames.length; i++) {
+                                for (let k = 0; k < fields.length; k++) {
+                                    if (
+                                        fields[k].getAttribute('name') ===
+                                        data.inpnames[i]
+                                    ) {
+                                        fields[k].setAttribute(
+                                            'placeholder',
+                                            'Поле не должно быть пустым'
+                                        );
+                                        fields[k].classList.add(
+                                            'errorvalidate'
+                                        );
+                                    }
+                                }
+                            }
+                        } else {
+                            console.log('ФОРМА ОТПРАВЛЕНА');
+                            console.log(data.inpnames);
+                            create_noerror_block(data.message);
+                            setTimeout(function() {
+                                window.location.href = '/';
+                            }, 3000);
+                        }
                     }
                 });
             }
@@ -10827,9 +10911,6 @@ $(document).ready(() => {
                     cache: false, // не будем кешировать производимый запрос.
                     dataType: 'json', // Тип данных, в котором ожидается получить ответ от сервера
                     // Функция, которая будет вызвана в случае удачного завершения запроса к серверу.
-                    beforeSend() {
-                        signup_btn.disabled = true;
-                    },
                     success(data) {
                         console.log(data);
                         if (data.status == false) {
@@ -10850,7 +10931,6 @@ $(document).ready(() => {
                             }
                             console.log(data);
                         } else {
-                            signup_btn.disabled = true;
                             console.log('ФОРМА ОТПРАВЛЕНА');
                             create_noerror_block(data.message);
                             console.log(data);
